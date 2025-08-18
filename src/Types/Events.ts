@@ -25,6 +25,7 @@ export type BaileysEventMap = {
 		progress?: number | null
 		syncType?: proto.HistorySync.HistorySyncType
 		peerDataRequestSessionId?: string | null
+		phoneNumberToLidMappings?: proto.IPhoneNumberToLIDMapping[] | null
 	}
 	/** upsert chats */
 	'chats.upsert': Chat[]
@@ -94,6 +95,7 @@ export type BufferedEventData = {
 		progress?: number | null
 		syncType?: proto.HistorySync.HistorySyncType
 		peerDataRequestSessionId?: string
+		phoneNumberToLidMappings?: proto.IPhoneNumberToLIDMapping[] | null
 	}
 	chatUpserts: { [jid: string]: Chat }
 	chatUpdates: { [jid: string]: ChatUpdate }

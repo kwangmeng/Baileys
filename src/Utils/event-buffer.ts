@@ -235,6 +235,7 @@ function append<E extends BufferableEvent>(
 			data.historySets.progress = eventData.progress
 			data.historySets.peerDataRequestSessionId = eventData.peerDataRequestSessionId
 			data.historySets.isLatest = eventData.isLatest || data.historySets.isLatest
+			data.historySets.phoneNumberToLidMappings = eventData.phoneNumberToLidMappings
 
 			break
 		case 'chats.upsert':
@@ -521,7 +522,8 @@ function consolidateEvents(data: BufferedEventData) {
 			syncType: data.historySets.syncType,
 			progress: data.historySets.progress,
 			isLatest: data.historySets.isLatest,
-			peerDataRequestSessionId: data.historySets.peerDataRequestSessionId
+			peerDataRequestSessionId: data.historySets.peerDataRequestSessionId,
+			phoneNumberToLidMappings: data.historySets.phoneNumberToLidMappings
 		}
 	}
 
