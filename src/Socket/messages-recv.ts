@@ -169,7 +169,7 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 		const msgId = msgKey.id!
 
 		const key = `${msgId}:${msgKey?.participant}`
-		let retryCount = msgRetryCache.get<number>(key) || 0
+		let retryCount = (msgRetryCache.get<number>(key) as number) || 0
 		if (retryCount >= maxMsgRetryCount) {
 			logger.debug({ retryCount, msgId }, 'reached retry limit, clearing')
 			msgRetryCache.del(key)
@@ -584,14 +584,14 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 	}
 
 	const willSendMessageAgain = (id: string, participant: string) => {
-		const key = `${id}:${participant}`
-		const retryCount = msgRetryCache.get<number>(key) || 0
-		return retryCount < maxMsgRetryCount
+			const key = `${id}:${participant}`
+	const retryCount = (msgRetryCache.get<number>(key) as number) || 0
+	return retryCount < maxMsgRetryCount
 	}
 
 	const updateSendMessageAgainCount = (id: string, participant: string) => {
-		const key = `${id}:${participant}`
-		const newValue = (msgRetryCache.get<number>(key) || 0) + 1
+			const key = `${id}:${participant}`
+	const newValue = ((msgRetryCache.get<number>(key) as number) || 0) + 1
 		msgRetryCache.set(key, newValue)
 	}
 
@@ -957,7 +957,7 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 			callOfferCache.set(call.id, call)
 		}
 
-		const existingCall = callOfferCache.get<WACallEvent>(call.id)
+		const existingCall = callOfferCache.get<WACallEvent>(call.id) as WACallEvent | undefined
 
 		// use existing call info to populate this event
 		if (existingCall) {
