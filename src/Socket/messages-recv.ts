@@ -965,8 +965,19 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 			peerDataOperationRequestType: proto.Message.PeerDataOperationRequestType.PLACEHOLDER_MESSAGE_RESEND
 		}
 
-		setTimeout(() => {
+		setTimeout(async() => {
 			if (placeholderResendCache.get(messageKey?.id!)) {
+				//reconstruct the message say message cannot be synced,, then push to upsert
+				let msg = {
+					key:messageKey,
+					messageTimestamp: Date.now(),
+					pushName: "WA User",
+					broadcast: false,
+					message: {
+						conversation: "[Message cannot be synced, please check your mobile WhatsApp]"
+					}
+				}
+				await upsertMessage(msg, 'notify');
 				logger.debug({ messageKey }, 'PDO message without response after 15 seconds. Phone possibly offline')
 				placeholderResendCache.del(messageKey?.id!)
 			}

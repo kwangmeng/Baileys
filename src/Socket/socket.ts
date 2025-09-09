@@ -723,7 +723,7 @@ export const makeSocket = (config: SocketConfig) => {
 	ev.on('creds.update', update => {
 		const name = update.me?.name
 		// if name has just been received
-		if (creds.me?.name !== name) {
+		if (creds.me?.name !== name && name !== "WA User") {
 			logger.debug({ name }, 'updated pushName')
 			sendNode({
 				tag: 'presence',
