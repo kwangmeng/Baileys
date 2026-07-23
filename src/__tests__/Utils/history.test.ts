@@ -429,4 +429,27 @@ describe('processHistoryMessage', () => {
 			expect(result.pastParticipants).toEqual(pastParticipants)
 		})
 	})
+
+	describe('NCT salt extraction', () => {
+		it('copies the salt from history sync data', () => {
+			const salt = new Uint8Array([0x10, 0x20, 0x30, 0x40])
+			const result = processHistoryMessage({
+				syncType: proto.HistorySync.HistorySyncType.INITIAL_BOOTSTRAP,
+				conversations: [],
+				nctSalt: salt
+			})
+
+			expect(result.nctSalt).toEqual(salt)
+			expect(result.nctSalt).not.toBe(salt)
+		})
+
+		it('leaves the salt undefined when history does not provide one', () => {
+			const result = processHistoryMessage({
+				syncType: proto.HistorySync.HistorySyncType.INITIAL_BOOTSTRAP,
+				conversations: []
+			})
+
+			expect(result.nctSalt).toBeUndefined()
+		})
+	})
 })

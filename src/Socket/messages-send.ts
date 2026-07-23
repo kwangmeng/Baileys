@@ -39,6 +39,7 @@ import { getUrlInfo } from '../Utils/link-preview'
 import { makeKeyedMutex, makeMutex } from '../Utils/make-mutex'
 import { getMessageReportingToken, shouldIncludeReportingToken } from '../Utils/reporting-utils'
 import {
+	buildCsTokenNode,
 	buildMergedTcTokenIndexWrite,
 	isTcTokenExpired,
 	resolveIssuanceJid,
@@ -1086,6 +1087,12 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 					attrs: {},
 					content: tcTokenBuffer
 				})
+			} else if (is1on1Send && !tcTokenBuffer?.length) {
+				const csTokenNode = buildCsTokenNode(authState.creds.nctSalt, tcTokenJid, authState.creds.me?.lid)
+				if (csTokenNode) {
+					;(stanza.content as BinaryNode[]).push(csTokenNode)
+					logger.debug({ jid: destinationJid }, 'attached cstoken fallback')
+				}
 			}
 
 			if (additionalNodes && additionalNodes.length > 0) {

@@ -396,7 +396,11 @@ const processMessage = async (
 						})
 					}
 
-					const data = await downloadAndProcessHistorySyncNotification(histNotification, options, logger)
+					const { nctSalt, ...data } = await downloadAndProcessHistorySyncNotification(
+						histNotification,
+						options,
+						logger
+					)
 
 					if (data.lidPnMappings?.length) {
 						logger?.debug({ count: data.lidPnMappings.length }, 'processing LID-PN mappings from history sync')
@@ -406,6 +410,11 @@ const processMessage = async (
 					}
 
 					await storeTcTokensFromHistorySync(data.chats, signalRepository, keyStore, logger)
+
+					if (nctSalt?.length) {
+						logger?.debug({ source: 'history' }, 'received NCT salt')
+						ev.emit('creds.update', { nctSalt })
+					}
 
 					ev.emit('messaging-history.set', {
 						...data,

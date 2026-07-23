@@ -69,6 +69,8 @@ export type AuthenticationCreds = SignalCreds & {
 	lastPropHash: string | undefined
 	routingInfo: Buffer | undefined
 	additionalData?: any | undefined
+	/** Salt provisioned by WhatsApp for client-side privacy-token computation. */
+	nctSalt?: Uint8Array
 }
 
 export type SignalDataTypeMap = {

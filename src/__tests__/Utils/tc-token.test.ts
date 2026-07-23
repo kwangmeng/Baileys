@@ -2,8 +2,10 @@ import { jest } from '@jest/globals'
 import { type SignalKeyStoreWithTransaction } from '../../Types'
 import { SERVER_ERROR_CODES } from '../../Utils'
 import {
+	buildCsTokenNode,
 	buildMergedTcTokenIndexWrite,
 	buildTcTokenFromJid,
+	computeCsToken,
 	isTcTokenExpired,
 	readTcTokenIndex,
 	resolveIssuanceJid,
@@ -1106,5 +1108,33 @@ describe('tctoken index helpers', () => {
 		const write = await buildMergedTcTokenIndexWrite(mockKeys, [TC_TOKEN_INDEX_KEY, '', 'a@lid'])
 		const merged = JSON.parse(write[TC_TOKEN_INDEX_KEY].token.toString())
 		expect(merged).toEqual(['a@lid'])
+	})
+})
+
+describe('cstoken fallback', () => {
+	it('computes the expected HMAC-SHA256 value', () => {
+		const salt = new Uint8Array(20).fill(0x0b)
+		const result = computeCsToken(salt, 'Hi There')
+
+		expect(Buffer.from(result).toString('hex')).toBe('b0344c61d8db38535ca8afceaf0bf12b881dc200c9833da726e9376c2e32cff7')
+	})
+
+	it('builds a cstoken node for a LID-addressed sender and recipient', () => {
+		const salt = new Uint8Array(32).fill(0xab)
+		const recipientLid = '12345@lid'
+
+		expect(buildCsTokenNode(salt, recipientLid, '67890@lid')).toEqual({
+			tag: 'cstoken',
+			attrs: {},
+			content: computeCsToken(salt, recipientLid)
+		})
+	})
+
+	it('does not build a cstoken without salt or the required LID context', () => {
+		const salt = new Uint8Array(32).fill(0xab)
+
+		expect(buildCsTokenNode(undefined, '12345@lid', '67890@lid')).toBeUndefined()
+		expect(buildCsTokenNode(salt, '12345@s.whatsapp.net', '67890@lid')).toBeUndefined()
+		expect(buildCsTokenNode(salt, '12345@lid', undefined)).toBeUndefined()
 	})
 })

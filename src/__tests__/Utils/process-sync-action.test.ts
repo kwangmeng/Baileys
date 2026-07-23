@@ -345,6 +345,25 @@ describe('processSyncAction', () => {
 		})
 	})
 
+	describe('nctSaltSyncAction', () => {
+		it('stores a received salt in credentials', () => {
+			const salt = new Uint8Array([0x01, 0x02, 0x03, 0x04])
+			const syncAction = createSyncAction({ nctSaltSyncAction: { salt } }, ['nct_salt_sync'])
+
+			processSyncAction(syncAction, ev, mockMe, undefined, logger)
+
+			expect(ev.emittedEvents).toContainEqual({ event: 'creds.update', data: { nctSalt: salt } })
+		})
+
+		it('clears a previously stored salt when the action is empty', () => {
+			const syncAction = createSyncAction({ nctSaltSyncAction: { salt: new Uint8Array() } }, ['nct_salt_sync'])
+
+			processSyncAction(syncAction, ev, mockMe, undefined, logger)
+
+			expect(ev.emittedEvents).toContainEqual({ event: 'creds.update', data: { nctSalt: undefined } })
+		})
+	})
+
 	describe('unprocessable actions', () => {
 		it('logs debug for unknown action', () => {
 			const syncAction = createSyncAction({ unknownAction: {} } as unknown as proto.ISyncActionValue, [

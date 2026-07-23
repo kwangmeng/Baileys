@@ -1,3 +1,4 @@
+import { createHmac } from 'node:crypto'
 import type { SignalKeyStoreWithTransaction } from '../Types'
 import type { BinaryNode } from '../WABinary'
 import {
@@ -214,5 +215,25 @@ export async function storeTcTokensFromIqResult({
 			}
 		})
 		onNewJidStored?.(storageJid)
+	}
+}
+
+/** Compute the client-side privacy token used when a recipient has not issued a trusted-contact token. */
+export function computeCsToken(nctSalt: Uint8Array, recipientLid: string): Uint8Array {
+	return new Uint8Array(createHmac('sha256', nctSalt).update(recipientLid, 'utf8').digest())
+}
+
+/** Build a cstoken stanza only when both accounts have the LID context required by WhatsApp Web. */
+export function buildCsTokenNode(
+	nctSalt: Uint8Array | undefined,
+	recipientLid: string,
+	ownLid: string | undefined
+): BinaryNode | undefined {
+	if (!nctSalt?.length || !ownLid || !isLidUser(recipientLid)) return
+
+	return {
+		tag: 'cstoken',
+		attrs: {},
+		content: computeCsToken(nctSalt, recipientLid)
 	}
 }
